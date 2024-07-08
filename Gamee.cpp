@@ -93,13 +93,18 @@ public:
 
 int main()
 {
+	bool fullScreen = false;
+	Vector2u size;
+	Vector2u size2;
+	size2.y = VideoMode::getDesktopMode().height;
+	size2.x = VideoMode::getDesktopMode().width;
 	int direct = 2;
 	Clock dodgeClock;
-	RenderWindow window(sf::VideoMode(640, 480), "Lesson 11. kychka-pc.ru");
+	RenderWindow window(VideoMode(1080, 675), "Lesson 11. kychka-pc.ru", Style::Close | Style::Titlebar);
 
-
-	view.reset(sf::FloatRect(0, 0, 640, 480));
-
+	view.reset(sf::FloatRect(0, 0, 1080, 675));
+	view.setSize(1080, 675);
+	view.zoom(1.2);
 	Image map_image;
 	map_image.loadFromFile("map.png");
 	Texture map;
@@ -114,6 +119,7 @@ int main()
 	float dodgeFrame = 0;
 	Clock clock;
 	bool isDodge = false;
+	size = window.getSize();
 
 	while (window.isOpen())
 	{
@@ -132,7 +138,26 @@ int main()
 			if (event.type == sf::Event::Closed)
 				window.close();
 		}
-
+		if (event.type == Event::KeyReleased) //проверка на отпускание
+		{
+			if (event.key.code == Keyboard::F11) //указываешь кнопку
+			{
+				if (fullScreen) 
+				{
+					view.setSize(size.x, size.y);
+					fullScreen = false;
+					window.create(VideoMode(size.x, size.y), "Lesson 11. kychka-pc.ru", Style::Close | Style::Titlebar);
+					view.zoom(1.2);
+				}
+				else
+				{
+					fullScreen = true;
+					window.create(VideoMode(size2.x, size2.y), "Lesson 11. kychka-pc.ru", Style::Fullscreen);
+					view.setSize(size2.x, size2.y);
+					view.zoom(1.2*float(size.y)/float(size2.y));
+				}
+			}
+		}
 		float coordinatePlayerX, coordinatePlayerY = 0;
 		coordinatePlayerX = p.getplayercoordinateX();
 		coordinatePlayerY = p.getplayercoordinateY();
