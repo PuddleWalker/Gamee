@@ -29,6 +29,9 @@
     <Image Include="map.png">
       <Filter>Файлы ресурсов</Filter>
     </Image>
+    <Image Include="spritestest.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="map.h">

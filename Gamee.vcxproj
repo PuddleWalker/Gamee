@@ -135,6 +135,7 @@
   <ItemGroup>
     <Image Include="map.png" />
     <Image Include="sprites.png" />
+    <Image Include="spritestest.png" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="map.h" />
