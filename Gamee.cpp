@@ -28,8 +28,9 @@ int main()
 
 	Player p(250, 250);
 	NPCList n;
-	n.create(245, 245, 15);
+	n.create(500, 245, 15);
 	n.create(220, 220, 15);
+	n.create(748, 693, 15);
 
 
 	while (window.isOpen())
@@ -88,8 +89,8 @@ int main()
 
 				window.draw(s_map);
 			}
-		n.moves();
 		n.update();
+		n.moves();
 		n.draw(window);
 		p.draw(window);
 		window.display();

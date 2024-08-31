@@ -2,6 +2,7 @@
 #include <list>
 
 using namespace std;
+class NPCList;
 class Entity
 {
 public:
@@ -39,13 +40,23 @@ protected:
 	int direct = 2;
 
 public:
-	
+	FloatRect getRect()
+	{
+		return FloatRect(x, y, MinWidth, MinHigh);
+	}
+	FloatRect getAttRect()
+	{
+		if (direct == 2) return FloatRect(x + MinWidth, y + MinHigh - attSprite.getTextureRect().getSize().y, attSprite.getTextureRect().getSize().x, attSprite.getTextureRect().getSize().y);
+		else return FloatRect(x - 2 * MinWidth, y + MinHigh - attSprite.getTextureRect().getSize().y, attSprite.getTextureRect().getSize().x, attSprite.getTextureRect().getSize().y);
+
+	}
 	const void draw(RenderWindow& window) 
 	{
 		sprite.setOrigin(0, sprite.getTextureRect().getSize().y-MinHigh);
 		if (direct == 2) sprite.setOrigin(0, sprite.getOrigin().y);
 		else sprite.setOrigin(-MinWidth-sprite.getTextureRect().getSize().x, sprite.getOrigin().y);
 		window.draw(sprite);
+		window.draw(attSprite);
 	}
 	void reset()
 	{
@@ -69,7 +80,8 @@ public:
 
 		speed = 0;
 		sprite.setPosition(x, y);
-		attSprite.setPosition(x + MinWidth, y+MinHigh - 100);
+		if(direct == 2)attSprite.setPosition(x + MinWidth, y+MinHigh - attSprite.getTextureRect().getSize().y);
+		else attSprite.setPosition(x - 2 * MinWidth, y + MinHigh - attSprite.getTextureRect().getSize().y);
 		interactionWithMap();//вызываем функцию, отвечающую за взаимодействие с картой
 	}
 
@@ -108,10 +120,11 @@ public:
 
 class slime : public Character
 {
+	friend class Player;
 	friend class NPCList;
-
+public:
 	slime(float X, float Y, int HP) {
-		TotalHP = HP; CurrentHP = HP; MinHigh = 34;
+		TotalHP = HP; CurrentHP = HP; MinHigh = 34; MinWidth = 49;
 		File = "slime.png";
 		image.loadFromFile(File);
 		image.createMaskFromColor(Color(47, 95, 115));
@@ -126,15 +139,12 @@ class slime : public Character
 		attSprite.setTexture(attTexture);
 		attSprite.setTextureRect(IntRect(0, 0, 100, 100));
 	}
+private:
 	void moves()
 	{
 		CurrentFrame += 0.007 * time;
 		if (CurrentFrame > 8) CurrentFrame -= 8;
 		sprite.setTextureRect(IntRect(48 * int(CurrentFrame), 0, 49, 34));
-	}
-	IntRect getRect()
-	{
-		return sprite.getTextureRect();
 	}
 };
 
@@ -170,15 +180,15 @@ public:
 		}
 	}
 
-	void update()
-	{
-		for (it = NPCs.begin(); it != NPCs.end(); it++)
-		{
-			if((*it).CurrentHP <= 0)
-			{
-				NPCs.erase(it);
+	void update() {
+		for (it = NPCs.begin(); it != NPCs.end(); ) {
+			if ((*it).CurrentHP <= 0) {
+				it = NPCs.erase(it); // Удаляем и обновляем итератор
 			}
-			else (*it).update();
+			else {
+				(*it).update();
+				++it; // Переходим к следующему элементу
+			}
 		}
 	}
 
@@ -313,7 +323,6 @@ public:
 			{
 				if(isAttack)
 				{
-
 					int a, b, c, d, e; float f;
 					switch (attackCount)
 					{
@@ -340,10 +349,23 @@ public:
 					attackFrame += f * attackTime;
 					if (attackFrame > e)
 					{
+						for (auto& it : NPCList::NPCs)
+						{
+							if (getAttRect().intersects(it.getRect()))
+							{
+								it.CurrentHP -= 15;
+								cout << getAttRect().getSize().x << "\t" << getAttRect().getSize().x << "\t";
+								cout << getAttRect().getPosition().x << "\t" << getAttRect().getPosition().y << "\t";
+								cout << x << "\t" << y << endl;
+								cout << getRect().getSize().x << "\t" << getRect().getSize().x << "\t";
+								cout << getRect().getPosition().x << "\t" << getRect().getPosition().y << endl;
+							}
+						}
 						attackFrame -= e;
 						if (attackCount < 6)attackCount++;
 						else attackCount = 1;
 						isAttack = false;
+
 					}
 					if (direct == 2) {
 						sprite.setTextureRect(IntRect(a * int(attackFrame), b, c, d));
