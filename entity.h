@@ -18,21 +18,33 @@ protected:
 	Clock clock;
 	Clock attackClock;
 	String File;
+	String attFile;
 	Image image;
+	Image attImage;
 	Texture texture;
+	Texture attTexture;
 	Sprite sprite;
+	Sprite attSprite;
 	float CurrentFrame = 0;
 	float attackFrame = 0;
 	bool isAttack = 0;
+	int TotalHP = 100;
+	int CurrentHP = 100;
+	int MinHigh;
+	int MinWidth;
 
 	float x, y;
-	float w, h, dx, dy, speed;
-	int dir;
+	float dx = 0, dy = 0, speed = 0;
+	int dir = 0;
 	int direct = 2;
 
 public:
 	
-	const void draw(RenderWindow& window) {
+	const void draw(RenderWindow& window) 
+	{
+		sprite.setOrigin(0, sprite.getTextureRect().getSize().y-MinHigh);
+		if (direct == 2) sprite.setOrigin(0, sprite.getOrigin().y);
+		else sprite.setOrigin(-MinWidth-sprite.getTextureRect().getSize().x, sprite.getOrigin().y);
 		window.draw(sprite);
 	}
 	void reset()
@@ -57,20 +69,20 @@ public:
 
 		speed = 0;
 		sprite.setPosition(x, y);
+		attSprite.setPosition(x + MinWidth, y+MinHigh - 100);
 		interactionWithMap();//вызываем функцию, отвечающую за взаимодействие с картой
 	}
 
 	void interactionWithMap()//ф-ция взаимодействия с картой
 	{
-
-		for (int i = y / 32; i < (y + h) / 32; i++)//проходимся по тайликам, контактирующим с игроком,, то есть по всем квадратикам размера 32*32, которые мы окрашивали в 9 уроке. про условия читайте ниже.
-			for (int j = x / 32; j < (x + w) / 32; j++)//икс делим на 32, тем самым получаем левый квадратик, с которым персонаж соприкасается. (он ведь больше размера 32*32, поэтому может одновременно стоять на нескольких квадратах). А j<(x + w) / 32 - условие ограничения координат по иксу. то есть координата самого правого квадрата, который соприкасается с персонажем. таким образом идем в цикле слева направо по иксу, проходя по от левого квадрата (соприкасающегося с героем), до правого квадрата (соприкасающегося с героем)
+		for (int i = y / 32; i < (y + MinHigh) / 32; i++)//проходимся по тайликам, контактирующим с игроком,, то есть по всем квадратикам размера 32*32, которые мы окрашивали в 9 уроке. про условия читайте ниже.
+			for (int j = x / 32; j < (x + MinWidth) / 32; j++)//икс делим на 32, тем самым получаем левый квадратик, с которым персонаж соприкасается. (он ведь больше размера 32*32, поэтому может одновременно стоять на нескольких квадратах). А j<(x + w) / 32 - условие ограничения координат по иксу. то есть координата самого правого квадрата, который соприкасается с персонажем. таким образом идем в цикле слева направо по иксу, проходя по от левого квадрата (соприкасающегося с героем), до правого квадрата (соприкасающегося с героем)
 			{
 				if (TileMap[i][j] == '0')//если наш квадратик соответствует символу 0 (стена), то проверяем "направление скорости" персонажа:
 				{
 					if (dy > 0)//если мы шли вниз,
 					{
-						y = i * 32 - h;//то стопорим координату игрек персонажа. сначала получаем координату нашего квадратика на карте(стены) и затем вычитаем из высоты спрайта персонажа.
+						y = i * 32 - MinHigh;//то стопорим координату игрек персонажа. сначала получаем координату нашего квадратика на карте(стены) и затем вычитаем из высоты спрайта персонажа.
 					}
 					if (dy < 0)
 					{
@@ -78,7 +90,7 @@ public:
 					}
 					if (dx > 0)
 					{
-						x = j * 32 - w;//если идем вправо, то координата Х равна стена (символ 0) минус ширина персонажа
+						x = j * 32 - MinWidth;//если идем вправо, то координата Х равна стена (символ 0) минус ширина персонажа
 					}
 					if (dx < 0)
 					{
@@ -94,19 +106,25 @@ public:
 	}
 };
 
-class NPC : public Character
+class slime : public Character
 {
 	friend class NPCList;
-public:
-	NPC(String F, float X, float Y, float W, float H) {
-		dx = 0; dy = 0; speed = 0; dir = 0;
-		File = F;
-		w = W; h = H;
+
+	slime(float X, float Y, int HP) {
+		TotalHP = HP; CurrentHP = HP; MinHigh = 34;
+		File = "slime.png";
 		image.loadFromFile(File);
 		image.createMaskFromColor(Color(47, 95, 115));
 		texture.loadFromImage(image);
 		sprite.setTexture(texture);
 		x = X; y = Y;
+
+		attFile = "pAttack.png";
+		attImage.loadFromFile(attFile);
+		attImage.createMaskFromColor(Color(47, 95, 115));
+		attTexture.loadFromImage(attImage);
+		attSprite.setTexture(attTexture);
+		attSprite.setTextureRect(IntRect(0, 0, 100, 100));
 	}
 	void moves()
 	{
@@ -114,18 +132,23 @@ public:
 		if (CurrentFrame > 8) CurrentFrame -= 8;
 		sprite.setTextureRect(IntRect(48 * int(CurrentFrame), 0, 49, 34));
 	}
+	IntRect getRect()
+	{
+		return sprite.getTextureRect();
+	}
 };
 
 class NPCList
 {
-	static list<NPC> NPCs;
-	static list<NPC>::iterator it;
+	friend class Player;
+	static list<slime> NPCs;
+	static list<slime>::iterator it;
 public:
-	void create(String F, float X, float Y, float W, float H)
+	void create(float X, float Y, int HP)
 	{
-		NPCs.emplace_back(F, X, Y, W, H);
+		NPCs.emplace_back(X, Y, HP);
 	}
-	NPC& operator[](int num)
+	slime& operator[](int num)
 	{
 		it = NPCs.begin();
 		advance(it, num);
@@ -151,7 +174,11 @@ public:
 	{
 		for (it = NPCs.begin(); it != NPCs.end(); it++)
 		{
-			(*it).update();
+			if((*it).CurrentHP <= 0)
+			{
+				NPCs.erase(it);
+			}
+			else (*it).update();
 		}
 	}
 
@@ -163,30 +190,35 @@ public:
 		}
 	}
 };
-list<NPC>::iterator NPCList::it;
-list<NPC> NPCList::NPCs;
+list<slime>::iterator NPCList::it;
+list<slime> NPCList::NPCs;
 
 class Player : public Character
 {
 
 private: 
-	   float dodgeFrame = 0;
-
-	   int attackCount = 1;
-	   int isDodge = 0;
-	   float dodgeTime;
-	   Clock dodgeClock;
+	float dodgeFrame = 0;
+	int attackCount = 1;
+	int isDodge = 0;
+	float dodgeTime;
+	Clock dodgeClock;
+	
 public:
-	Player(String F, float X, float Y, float W, float H) {
-		dx = 0; dy = 0; speed = 0; dir = 0;
-		File = F;
-		w = W; h = H;
+	Player(float X, float Y) {
+		MinHigh = 96; MinWidth = 55;
+		File = "sprites.png";
 		image.loadFromFile(File);
 		image.createMaskFromColor(Color(47, 95, 115));
 		texture.loadFromImage(image);
 		sprite.setTexture(texture);
 		x = X; y = Y;
 
+		attFile = "pAttack.png";
+		attImage.loadFromFile(attFile);
+		attImage.createMaskFromColor(Color(47, 95, 115));
+		attTexture.loadFromImage(attImage);
+		attSprite.setTexture(attTexture);
+		attSprite.setTextureRect(IntRect(0, 0, 100, 100));
 	}
 
 	void reset()
@@ -281,6 +313,7 @@ public:
 			{
 				if(isAttack)
 				{
+
 					int a, b, c, d, e; float f;
 					switch (attackCount)
 					{

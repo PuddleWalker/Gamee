@@ -29,10 +29,10 @@
     <Image Include="map.png">
       <Filter>Файлы ресурсов</Filter>
     </Image>
-    <Image Include="spritestest.png">
+    <Image Include="pAttack.png">
       <Filter>Файлы ресурсов</Filter>
     </Image>
-    <Image Include="enemy1Sprite.png">
+    <Image Include="slime.png">
       <Filter>Файлы ресурсов</Filter>
     </Image>
   </ItemGroup>

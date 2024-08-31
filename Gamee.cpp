@@ -26,10 +26,10 @@ int main()
 	Sprite s_map;
 	s_map.setTexture(map);
 
-	Player p("sprites.png", 250, 250, 96.0, 96.0);
+	Player p(250, 250);
 	NPCList n;
-	n.create("enemySprite.png", 220, 220, 96.0, 96.0);
-	n.create("enemySprite.png", 245, 245, 96.0, 96.0);
+	n.create(245, 245, 15);
+	n.create(220, 220, 15);
 
 
 	while (window.isOpen())

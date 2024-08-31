@@ -133,10 +133,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="enemy1Sprite.png" />
     <Image Include="map.png" />
+    <Image Include="pAttack.png" />
+    <Image Include="slime.png" />
     <Image Include="sprites.png" />
-    <Image Include="spritestest.png" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="entity.h" />
