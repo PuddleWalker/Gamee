@@ -133,6 +133,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="background.png" />
     <Image Include="map.png" />
     <Image Include="pAttack.png" />
     <Image Include="slime.png" />
@@ -141,6 +142,7 @@
   <ItemGroup>
     <ClInclude Include="entity.h" />
     <ClInclude Include="map.h" />
+    <ClInclude Include="Screen.h" />
     <ClInclude Include="view.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

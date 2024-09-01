@@ -1,5 +1,6 @@
 #pragma once
 #include <list>
+#include <ctime>
 
 using namespace std;
 class NPCList;
@@ -40,14 +41,14 @@ protected:
 	int direct = 2;
 
 public:
-	FloatRect getRect()
+	const FloatRect getRect()
 	{
 		return FloatRect(x, y, MinWidth, MinHigh);
 	}
-	FloatRect getAttRect()
+	const FloatRect getAttRect()
 	{
 		if (direct == 2) return FloatRect(x + MinWidth, y + MinHigh - attSprite.getTextureRect().getSize().y, attSprite.getTextureRect().getSize().x, attSprite.getTextureRect().getSize().y);
-		else return FloatRect(x - 2 * MinWidth, y + MinHigh - attSprite.getTextureRect().getSize().y, attSprite.getTextureRect().getSize().x, attSprite.getTextureRect().getSize().y);
+		else return FloatRect(x - attSprite.getTextureRect().getSize().x, y + MinHigh - attSprite.getTextureRect().getSize().y, attSprite.getTextureRect().getSize().x, attSprite.getTextureRect().getSize().y);
 
 	}
 	const void draw(RenderWindow& window) 
@@ -81,7 +82,7 @@ public:
 		speed = 0;
 		sprite.setPosition(x, y);
 		if(direct == 2)attSprite.setPosition(x + MinWidth, y+MinHigh - attSprite.getTextureRect().getSize().y);
-		else attSprite.setPosition(x - 2 * MinWidth, y + MinHigh - attSprite.getTextureRect().getSize().y);
+		else attSprite.setPosition(x - attSprite.getTextureRect().getSize().x, y + MinHigh - attSprite.getTextureRect().getSize().y);
 		interactionWithMap();//вызываем функцию, отвечающую за взаимодействие с картой
 	}
 
@@ -228,7 +229,7 @@ public:
 		attImage.createMaskFromColor(Color(47, 95, 115));
 		attTexture.loadFromImage(attImage);
 		attSprite.setTexture(attTexture);
-		attSprite.setTextureRect(IntRect(0, 0, 100, 100));
+		attSprite.setTextureRect(IntRect(0, 0, 60, 100));
 	}
 
 	void reset()
