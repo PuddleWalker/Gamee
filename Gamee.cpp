@@ -1,5 +1,6 @@
 ﻿#include <SFML/Graphics.hpp>
 #include <iostream> 
+#include "Interface.h"
 #include "map.h"
 #include "view.h"
 #include "entity.h"
@@ -9,51 +10,58 @@ using namespace sf;
 int main()
 {
 	srand(time(NULL));
-	Room r1;
 	Screen screen(VideoMode::getDesktopMode().width, VideoMode::getDesktopMode().height);
-	
-
-	Player p(250, 250);
-	NPCList n;
-	n.create(500, 245, 15);
-	n.create(220, 220, 15);
-	n.create(748, 693, 15);
-
-
-	while (window.isOpen())
-	{
-		sf::Event event;
-
-		p.reset();
-		n.reset();
-
-		while (window.pollEvent(event))
-		{
-			if (event.type == sf::Event::Closed)
-				window.close();
-		}
-		screen.fullScreen(event);
-		///////////////////////////////////////////Управление персонажем с анимацией////////////////////////////////////////////////////////////////////////
-		p.movement(event);
-
-		p.setView();
-		p.update();
-
-
-
-		window.setView(view);
-		window.clear();
-
-		/////////////////////////////Рисуем карту/////////////////////
+	while (!screen.getEnd()) {
+		Room r1;
+		Player p(250, 250);
+		NPCList n;
 		
-		n.update();
-		n.moves();
-		r1.draw(window);
-		n.draw(window);
-		p.draw(window);
-		screen.start(window);
-		window.display();
-	}
+		for (int i = 0; i < 3; i++)
+		{
+			n.create((rand() % 46 + 2) * 32, (rand() % 21 + 2) * 32, (rand() % 50 + 1));
+		}
+		screen.setTimer(120);
+		while (screen.window.isOpen())
+		{
+			sf::Event event;
 
+			p.reset();
+			n.reset();
+
+			while (screen.window.pollEvent(event))
+			{
+				if (event.type == sf::Event::Closed)
+					screen.window.close();
+			}
+			screen.fullScreen(event);
+			///////////////////////////////////////////Управление персонажем с анимацией////////////////////////////////////////////////////////////////////////
+			p.movement(event);
+			p.update(r1);
+			if (n.getCount() < 3)
+			{
+				n.create((rand() % 46 + 2) * 32, (rand() % 21 + 2) * 32, (rand() % 50 + 1));
+				screen.increseScore();
+			}
+			
+			
+			screen.window.clear();
+
+			/////////////////////////////Рисуем карту/////////////////////
+			
+			n.update(r1);
+			IntRect rec = p.getHit();
+			float x = p.getX();
+			float y = p.getY();
+			n.moves(x, y, rec);
+			r1.draw(screen.window);
+			n.draw(screen.window);
+			p.draw(screen.window);
+			screen.start();
+			screen.setView(x, y);
+			screen.showMetrics();
+			screen.window.display();
+		}
+
+	}
 	return 0;
 }

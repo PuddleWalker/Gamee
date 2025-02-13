@@ -52,5 +52,16 @@
     <ClInclude Include="Screen.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="Interface.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="HarryPotterKudosEN-en.ttf">
+      <Filter>Файлы ресурсов</Filter>
+    </Font>
+    <Font Include="PolandCannedIntoFuture-OxE3.ttf">
+      <Filter>Файлы ресурсов</Filter>
+    </Font>
   </ItemGroup>
 </Project>
