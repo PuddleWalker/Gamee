@@ -14,6 +14,7 @@ public:
 
 };
 
+template<typename T> T abs(T num) { if (num < 0)return -num; return num; }
 
 class Character
 {
@@ -34,8 +35,13 @@ protected:
 	float CurrentFrame = 0;
 	float attackFrame = 0;
 	bool isAttack = 0;
+	bool isDamaged;
+	int dam;
+
 	int TotalHP = 100;
 	int CurrentHP = 100;
+	sf::RectangleShape totHealthRec;
+	sf::RectangleShape curHealthRec;
 	int MinHigh = 0;
 	int MinWidth = 0;
 
@@ -49,6 +55,7 @@ public:
 	{
 		return sf::FloatRect(x, y, MinWidth, MinHigh);
 	}
+	sf::Sprite getHit() { return sprite; }
 	const sf::FloatRect getAttRect()
 	{
 		if (direct == 2) return sf::FloatRect(x + MinWidth, y + MinHigh - attSprite.getTextureRect().getSize().y, attSprite.getTextureRect().getSize().x, attSprite.getTextureRect().getSize().y);
@@ -63,11 +70,23 @@ public:
 		window.draw(sprite);
 		window.draw(attSprite);
 	}
+	void Attacked(sf::FloatRect attHit, int dam)
+	{
+		if (attHit.intersects(getRect()))
+		{
+			CurrentHP -= dam;
+			isDamaged = true;
+		}
+	}
 	void reset()
 	{
 		time = clock.getElapsedTime().asMicroseconds();
 		clock.restart();
 		time = time / 800;
+
+		attackTime = attackClock.getElapsedTime().asMicroseconds();
+		if (isAttack)attackClock.restart();
+		attackTime = attackTime / 800;
 	}
 
 	float getX() { return x; }
@@ -93,6 +112,7 @@ public:
 	}
 	private:
 	virtual void interactionWithMap(Room& r1) = 0;
+	virtual void ShowHP(sf::RenderWindow& window) = 0;
 };
 
 class slime : public Character
@@ -102,13 +122,15 @@ class slime : public Character
 	sf::Clock timer;
 	float rWait;
 	float pX1, pY1;
-	bool isDamaged;
+	void ShowHP(sf::RenderWindow& window) override{}
 public:
-	slime(float X, float Y, int HP) {
+	slime(float X, float Y, int HP, sf::Color col = sf::Color::Blue) {
+		if (col == sf::Color::Red) { File = "red_slime.png"; dam = 30; }
+		else if (col == sf::Color::Green) { File = "green_slime.png"; dam = 20; }
+		else { File = "blue_slime.png"; dam = 10; }
 		TotalHP = HP; CurrentHP = HP; MinHigh = 34; MinWidth = 49;
 		isDamaged = false;
 		rWait = rand() % 3 + 3;
-		File = "slime.png";
 		image.loadFromFile(File);
 		image.createMaskFromColor(sf::Color(47, 95, 115));
 		image.createMaskFromColor(sf::Color(0, 0, 0));
@@ -124,14 +146,6 @@ public:
 		attTexture.loadFromImage(attImage);
 		attSprite.setTexture(attTexture);
 		attSprite.setTextureRect(sf::IntRect(0, 0, 60, 100));
-	}
-	void Attacked(sf::FloatRect attHit, int dam)
-	{
-		if (attHit.intersects(getRect()))
-		{
-			CurrentHP -= dam;
-			isDamaged = true;
-		}
 	}
 private:
 	void interactionWithMap(Room& r1) override//ф-ция взаимодействия с картой
@@ -160,10 +174,12 @@ private:
 				}
 			}
 	}
-	void moves(float px, float py, sf::IntRect pHit)
+	void moves(Character& pl)
 	{
 		if(isDamaged)
 		{
+			isAttack = false;
+			attackFrame = 0;
 			CurrentFrame += 0.005 * time;
 			if (direct == 2)
 			{
@@ -173,20 +189,43 @@ private:
 			{
 				sprite.setTextureRect(sf::IntRect(92 * (int(CurrentFrame) + 1) + 1, 103, -93, 37));
 			}
-			if (CurrentFrame > 6) isDamaged = false;
+			if (CurrentFrame > 6)
+			{
+				isDamaged = false;
+				CurrentFrame -= 6;
+				timer.restart();
+			}
+		}
+		else if (isAttack)
+		{
+			attackFrame += 0.007 * attackTime;
+			if (direct == 2)
+			{
+				sprite.setTextureRect(sf::IntRect(70 * int(attackFrame), 67, 71, 37));
+			}
+			else
+			{
+				sprite.setTextureRect(sf::IntRect(70 * (int(attackFrame) + 1) + 1, 67, -71, 37));
+			}
+			if (attackFrame > 6)
+			{
+				attackFrame -= 6;
+				pl.Attacked(getAttRect(), dam);
+				isAttack = false;
+				timer.restart();
+			}
+
 		}
 		else
 		{
 			float pX, pY;
-			pX = px - sprite.getTextureRect().getSize().x;
-			pY = py;
-			if (px < x)pX = px + pHit.getSize().x;
+			pX = pl.getX() + pl.getHit().getScale().x / 2;
+			pY = pl.getY() + pl.getHit().getScale().y / 2;
 
-			if (py < y) pY = py + pHit.getSize().y - sprite.getTextureRect().getSize().y;
-			if (sqrt((x - pX) * (x - pX) + (y - pY) * (y - pY)) < 350 && sqrt((x - pX) * (x - pX) + (y - pY) * (y - pY)) > 10)
+			if (sqrt((x - pX) * (x - pX) + (y - pY) * (y - pY)) < 350 && sqrt((x - pX) * (x - pX) + (y - pY) * (y - pY)) > abs(pl.getHit().getTextureRect().getSize().x)/1.5 || sqrt((x - pX) * (x - pX) + (y - pY) * (y - pY)) < abs(pl.getHit().getTextureRect().getSize().x) / 1.5 && (y<= pl.getY() || y + sprite.getTextureRect().getSize().y >= pl.getY() + pl.getHit().getTextureRect().getSize().y))
 			{
 				float distance = sqrt((pX - x) * (pX - x) + (pY - y) * (pY - y));//считаем дистанцию (длину от точки А до точки Б). формула длины вектора
-				if (px < x)direct = 1;
+				if (pX < x)direct = 1;
 				else direct = 2;
 				if (distance > 2) {//этим условием убираем дергание во время конечной позиции спрайта
 
@@ -208,6 +247,31 @@ private:
 				pX1 = pX;
 				pY1 = pY;
 				timer.restart();
+			}
+			else if(sqrt((x - pX) * (x - pX) + (y - pY) * (y - pY)) < abs(pl.getHit().getTextureRect().getSize().x) / 1.5)
+			{
+				if (x + abs(sprite.getTextureRect().getSize().x) / 2 > pl.getX() + abs(pl.getHit().getTextureRect().getSize().x) / 2) direct = 1;
+				else direct = 2;
+				if (timer.getElapsedTime().asSeconds() >= 1)
+				{
+					isAttack = true;
+					attackClock.restart();
+				}
+				else
+				{
+					if (direct == 2)
+					{
+						CurrentFrame += 0.007 * time;
+						if (CurrentFrame > 8) CurrentFrame -= 8;
+						sprite.setTextureRect(sf::IntRect(48 * int(CurrentFrame), 0, 49, 34));
+					}
+					else
+					{
+						CurrentFrame += 0.007 * time;
+						if (CurrentFrame > 8) CurrentFrame -= 8;
+						sprite.setTextureRect(sf::IntRect(48 * int(CurrentFrame + 1) + 1, 0, -49, 34));
+					}
+				}
 			}
 			else
 			{
@@ -271,9 +335,9 @@ class NPCList
 	static int NPCCount;
 public:
 	NPCList() { NPCCount = 0; }
-	void create(float X, float Y, int HP)
+	void create(float X, float Y, int HP, sf::Color col = sf::Color::Blue)
 	{
-		NPCs.emplace_back(X, Y, HP);
+		NPCs.emplace_back(X, Y, HP, col);
 		NPCCount++;
 	}
 	slime& operator[](int num)
@@ -290,11 +354,11 @@ public:
 		}
 	}
 
-	void moves(float x, float y, sf::IntRect rec)
+	void moves(Character& pl)
 	{
 		for (it = NPCs.begin(); it != NPCs.end(); it++)
 		{
-			(*it).moves(x, y, rec);
+			(*it).moves(pl);
 		}
 	}
 
@@ -336,7 +400,8 @@ private:
 	int isDodge = 0;
 	float dodgeTime = 0;
 	sf::Clock dodgeClock;
-	
+
+	void ShowHP(sf::RenderWindow& window) override {}
 public:
 	Player(float X, float Y) {
 		MinHigh = 96; MinWidth = 55;
@@ -354,8 +419,10 @@ public:
 		attTexture.loadFromImage(attImage);
 		attSprite.setTexture(attTexture);
 		attSprite.setTextureRect(sf::IntRect(0, 0, 60, 100));
+		curHealthRec.setFillColor(sf::Color::Green);
+		curHealthRec.setSize(sf::Vector2f(15, 60));
 	}
-	sf::IntRect getHit() { return sprite.getTextureRect(); }
+	
 	void reset()
 	{
 		time = clock.getElapsedTime().asMicroseconds();
@@ -368,7 +435,7 @@ public:
 		if(isAttack)attackClock.restart();
 		attackTime = attackTime / 800;
 	}
-
+	std::pair<int, int> getHP() { return std::make_pair(CurrentHP, TotalHP); }
 	void movement(sf::Event event) {
 		if (event.type == sf::Event::MouseButtonPressed)
 		{

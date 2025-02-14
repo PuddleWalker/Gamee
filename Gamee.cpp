@@ -18,9 +18,9 @@ int main()
 		
 		for (int i = 0; i < 3; i++)
 		{
-			n.create((rand() % 46 + 2) * 32, (rand() % 21 + 2) * 32, (rand() % 50 + 1));
+			n.create((rand() % 46 + 2) * 32, (rand() % 21 + 2) * 32, (rand() % 50 + 1), sf::Color::Red);
 		}
-		screen.setTimer(120);
+		screen.setTimer(250);
 		while (screen.window.isOpen())
 		{
 			sf::Event event;
@@ -49,16 +49,17 @@ int main()
 			/////////////////////////////Рисуем карту/////////////////////
 			
 			n.update(r1);
-			IntRect rec = p.getHit();
+			sf::Sprite rec = p.getHit();
 			float x = p.getX();
 			float y = p.getY();
-			n.moves(x, y, rec);
+			n.moves(p);
 			r1.draw(screen.window);
 			n.draw(screen.window);
 			p.draw(screen.window);
 			screen.start();
-			screen.setView(x, y);
+			screen.setView(rec.getPosition().x, rec.getPosition().y);
 			screen.showMetrics();
+			screen.ShowPlayerHP(p.getHP());
 			screen.window.display();
 		}
 

@@ -17,6 +17,10 @@ class Screen
 	Sprite stSprite;
 	RectangleShape fadeOverlay;
 	Button startBut;
+	Button exitBut;
+
+	sf::RectangleShape totHealthRec;
+	sf::RectangleShape curHealthRec;
 	float zoomPow;
 	bool isStart = false;
 	bool isFullScreen;
@@ -50,7 +54,7 @@ public:
 		size2.x = VideoMode::getDesktopMode().width;
 		isFullScreen = false;
 		if (size2.x > 1920) size2.x = 1920;
-		if (size2.y > 1080) size2.x = 1080;
+		if (size2.y > 1080) size2.y = 1080;
 
 		text1.setCharacterSize(48); // Размер шрифта
 		text1.setFillColor(sf::Color::Yellow); // Цвет текста
@@ -59,11 +63,33 @@ public:
 
 		score = 0;
 		timer = 0;
-		startBut.setPosition(32, 32);
-		startBut.SetSize(32, 32);
-		startBut.isRecVisible = false;
-	}
 
+		startBut.SetFont("ArcadeFont.ttf");
+		exitBut.SetFont("ArcadeFont.ttf");
+		startBut.SetText("Start");
+		exitBut.SetText("Exit");
+		startBut.SetTextColor(sf::Color::Yellow);
+		exitBut.SetTextColor(sf::Color::Yellow);
+		startBut.SetTextSize(60);
+		exitBut.SetTextSize(60);
+		startBut.SetSize(startBut.GetTextSize());
+		exitBut.SetSize(exitBut.GetTextSize());
+		startBut.SetPosition(view.getCenter().x + size.x / 2 - startBut.GetSize().x, view.getCenter().y);
+		exitBut.SetPosition(view.getCenter().x + size.x/2 - startBut.GetSize().x, view.getCenter().y + startBut.GetSize().y * 1.5);
+		startBut.isRecVisible = false;
+		exitBut.isRecVisible = false;
+		totHealthRec.setSize(sf::Vector2f(120, 30));
+		curHealthRec.setSize(sf::Vector2f(120, 30));
+		curHealthRec.setFillColor(sf::Color::Green);
+	}
+	void ShowPlayerHP(std::pair<int, int> health)
+	{
+		totHealthRec.setPosition(view.getCenter().x - size2.x / 4, view.getCenter().y - size2.y / 4);
+		curHealthRec.setPosition(view.getCenter().x - size2.x / 4, view.getCenter().y - size2.y / 4);
+		curHealthRec.setSize(sf::Vector2f(totHealthRec.getSize().x * health.first / health.second , curHealthRec.getSize().y));
+		window.draw(totHealthRec);
+		window.draw(curHealthRec);
+	}
 	void setTimer(int timer) { this->timer = timer; }
 	void setView(float x, float y) { //функция для считывания координат игрока
 		float tempX = x; float tempY = y;//считываем коорд игрока и проверяем их, чтобы убрать края
@@ -155,7 +181,7 @@ public:
 		{
 			stSprite.setScale(float(window.getSize().y) / float(stSprite.getTextureRect().getSize().y), float(window.getSize().y) / float(stSprite.getTextureRect().getSize().y)); 
 			stSprite.setPosition(view.getCenter().x - stSprite.getTextureRect().getSize().x / 2 * stSprite.getScale().y, view.getCenter().y - stSprite.getTextureRect().getSize().y / 2 * stSprite.getScale().y);
-			startBut.setPosition(view.getCenter().x, view.getCenter().y);
+			
 			while (window.isOpen() and !isStart)
 			{
 
@@ -175,6 +201,7 @@ public:
 					stSprite.setTextureRect(IntRect(0, 0, 1, 1));
 					isStart = true;
 				}
+				if (exitBut.Draw(event, window)) window.close();
 				window.display();
 			}
 			if(!isFullScreen)view.setSize(size.x * 1.2, size.y * 1.2);

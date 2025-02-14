@@ -136,9 +136,11 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="background.png" />
+    <Image Include="blue_slime.png" />
+    <Image Include="green_slime.png" />
     <Image Include="map.png" />
     <Image Include="pAttack.png" />
-    <Image Include="slime.png" />
+    <Image Include="red_slime.png" />
     <Image Include="sprites.png" />
   </ItemGroup>
   <ItemGroup>

@@ -32,10 +32,16 @@
     <Image Include="pAttack.png">
       <Filter>Файлы ресурсов</Filter>
     </Image>
-    <Image Include="slime.png">
+    <Image Include="background.png">
       <Filter>Файлы ресурсов</Filter>
     </Image>
-    <Image Include="background.png">
+    <Image Include="blue_slime.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="red_slime.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="green_slime.png">
       <Filter>Файлы ресурсов</Filter>
     </Image>
   </ItemGroup>

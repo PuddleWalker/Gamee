@@ -76,11 +76,11 @@ public:
 			file.get();
 		}
 	}
-	//~Room()
-	//{
-	//	for (int i = 0; i < HEIGHT_MAP; ++i) {
-	//		delete[] TileMap[i]; // Освобождаем каждую строку
-	//	}
-	//	delete[] TileMap;
-	//}
+	~Room()
+	{
+		for (int i = 0; i < HEIGHT_MAP; ++i) {
+			delete[] TileMap[i]; // Освобождаем каждую строку
+		}
+		delete[] TileMap;
+	}
 };

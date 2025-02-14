@@ -8,30 +8,30 @@ class Button
 	sf::Font font;
 	sf::Text text;
 	sf::Text textOver;
-	void (*func)();
+	
 public:
 	bool isRecVisible = true;
-	Button(void (*funcPtr)()) : func(funcPtr) 
-	{
-		rec.setFillColor(sf::Color(255, 255, 255));
-	}
 	Button()
 	{
-		func = nullptr;
 		rec.setFillColor(sf::Color(255, 255, 255));
 	}
-	void SetFunc(void (*funcPtr)()) { func = funcPtr; }
 	void SetPosition(sf::Vector2f& pos) 
 	{ 
-		rec.setPosition(pos);
-		recOver.setPosition(pos);
-		text.setPosition(pos.x + rec.getSize().x / 2 - text.getLocalBounds().width, pos.y + rec.getSize().y / 2 - text.getLocalBounds().height);
-		textOver.setPosition(pos.x + rec.getSize().x / 2 - text.getLocalBounds().width, pos.y + rec.getSize().y / 2 - text.getLocalBounds().height);
+		rec.setPosition(pos.x - rec.getSize().x / 2, pos.y - rec.getSize().y / 2);
+		recOver.setPosition(pos.x - rec.getSize().x / 2, pos.y - rec.getSize().y / 2);
+		text.setPosition(pos.x - text.getLocalBounds().width / 2, pos.y - text.getLocalBounds().height / 2 - text.getLocalBounds().top);
+		textOver.setPosition(pos.x - text.getLocalBounds().width / 2, pos.y - text.getLocalBounds().height / 2 - text.getLocalBounds().top);
 	}
-	void setPosition(float x, float y) { rec.setPosition(sf::Vector2f(x, y));recOver.setPosition(sf::Vector2f(x, y));}
+	void SetPosition(float x, float y) 
+	{
+		rec.setPosition(x- rec.getSize().x / 2, y- rec.getSize().y / 2);
+		recOver.setPosition(x- rec.getSize().x / 2, y- rec.getSize().y / 2);
+		text.setPosition(x- text.getLocalBounds().width/2, y - text.getLocalBounds().height/2 - text.getLocalBounds().top);
+		textOver.setPosition(x- text.getLocalBounds().width/2, y - text.getLocalBounds().height/2 - text.getLocalBounds().top);
+	}
 	sf::Vector2f getPosition() { return rec.getPosition(); }
 	void SetSize(float x, float y) { rec.setSize(sf::Vector2f(x, y)); recOver.setSize(sf::Vector2f(x, y));}
-	void SetSize(sf::Vector2f& size){rec.setSize(size);recOver.setSize(size);}
+	void SetSize(sf::Vector2f size){ rec.setSize(size);recOver.setSize(size);}
 	sf::Vector2f GetSize() { return rec.getSize(); }
 	sf::Vector2f GetTextSize() { return text.getLocalBounds().getSize(); }
 	void SetText(std::string str) 
@@ -44,7 +44,7 @@ public:
 	void SetFont(std::string str) { font.loadFromFile(str); text.setFont(font);textOver.setFont(font); }
 	void SetFont(sf::Font& font) { text.setFont(font); textOver.setFont(font);}
 	void SetColor(sf::Color& color) { rec.setFillColor(color); }
-	void SetTextColor(sf::Color& color) { text.setFillColor(color); }
+	void SetTextColor(const sf::Color& color) { text.setFillColor(color); }
 	void SetOutlineColor(sf::Color& color) { rec.setOutlineColor(color); }
 	void SetOutlineThickness(int thick) { rec.setOutlineThickness(thick); }
 	void SetColorChange(sf::Color& color) { recOver.setFillColor(color); textOver.setFillColor(color); }
@@ -62,7 +62,6 @@ public:
 			else if(!text.getString().isEmpty()) window.draw(textOver);
 			if (event.type == sf::Event::MouseButtonReleased) {
 				if (event.mouseButton.button == sf::Mouse::Left) {
-					if(func != nullptr)func;
 					return true;
 				}
 			}
