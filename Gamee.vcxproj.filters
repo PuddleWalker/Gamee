@@ -49,9 +49,6 @@
     <ClInclude Include="map.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="view.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="entity.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
@@ -69,5 +66,16 @@
     <Font Include="PolandCannedIntoFuture-OxE3.ttf">
       <Filter>Файлы ресурсов</Filter>
     </Font>
+    <Font Include="Monocraft.otf">
+      <Filter>Файлы ресурсов</Filter>
+    </Font>
+    <Font Include="Bloq.ttf">
+      <Filter>Файлы ресурсов</Filter>
+    </Font>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="record.txt">
+      <Filter>Файлы ресурсов</Filter>
+    </Text>
   </ItemGroup>
 </Project>

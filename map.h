@@ -22,10 +22,11 @@ class Room
 	const std::string folderPath = "Rooms/";
 	std::string path;
 
-	char** TileMap;
+	std::vector<std::vector<char>> TileMap;
+public:
 	int HEIGHT_MAP;
 	int WIDTH_MAP;
-public:
+
 	void draw(RenderWindow& window)
 	{
 		std::sort(entitiesToDraw.begin(), entitiesToDraw.end(), [](const std::pair<int, std::function<void(sf::RenderWindow&)>>& a, const std::pair<int, std::function<void(sf::RenderWindow&)>>& b) {
@@ -66,6 +67,10 @@ public:
 	char GetTile(int i, int j) { return TileMap[i][j]; }
 	void RemoveTile(int i, int j) { TileMap[i][j] = ' '; }
 	void AddToDraw(std::pair<int, std::function<void(sf::RenderWindow&)>> ch) { entitiesToDraw.push_back(ch); }
+
+	volatile int getWidth() { return WIDTH_MAP; }
+	volatile int getHeight() { return HEIGHT_MAP; }
+
 	Room()
 	{
 		map_image.loadFromFile("map.png");
@@ -84,10 +89,9 @@ public:
 		path = files[randomIndex];
 		std::ifstream file(path);
 		file >> HEIGHT_MAP >> WIDTH_MAP;
+		TileMap.resize(HEIGHT_MAP * 2, std::vector<char>(WIDTH_MAP * 2));
 		file.get();
-		TileMap = new char* [HEIGHT_MAP];
 		for (int i = 0; i < HEIGHT_MAP; ++i) {
-			TileMap[i] = new char[WIDTH_MAP];
 			for (int j = 0; j < WIDTH_MAP; ++j) {
 
 				file.get(TileMap[i][j]);
@@ -112,12 +116,6 @@ public:
 			}
 			file.get();
 		}
-	}
-	~Room()
-	{
-		for (int i = 0; i < HEIGHT_MAP; ++i) {
-			delete[] TileMap[i]; // Освобождаем каждую строку
-		}
-		delete[] TileMap;
+		file.close();
 	}
 };

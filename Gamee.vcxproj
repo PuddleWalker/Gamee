@@ -148,11 +148,15 @@
     <ClInclude Include="Interface.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="Screen.h" />
-    <ClInclude Include="view.h" />
   </ItemGroup>
   <ItemGroup>
+    <Font Include="Bloq.ttf" />
     <Font Include="HarryPotterKudosEN-en.ttf" />
+    <Font Include="Monocraft.otf" />
     <Font Include="PolandCannedIntoFuture-OxE3.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="record.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

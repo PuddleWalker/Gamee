@@ -15,7 +15,7 @@ public:
 	{
 		rec.setFillColor(sf::Color(255, 255, 255));
 	}
-	void SetPosition(sf::Vector2f& pos) 
+	void SetPosition(sf::Vector2f pos) 
 	{ 
 		rec.setPosition(pos.x - rec.getSize().x / 2, pos.y - rec.getSize().y / 2);
 		recOver.setPosition(pos.x - rec.getSize().x / 2, pos.y - rec.getSize().y / 2);
@@ -43,11 +43,11 @@ public:
 	void SetTextSize(int size) { text.setCharacterSize(size); textOver.setCharacterSize(size);}
 	void SetFont(std::string str) { font.loadFromFile(str); text.setFont(font);textOver.setFont(font); }
 	void SetFont(sf::Font& font) { text.setFont(font); textOver.setFont(font);}
-	void SetColor(sf::Color& color) { rec.setFillColor(color); }
+	void SetColor(sf::Color color) { rec.setFillColor(color); }
 	void SetTextColor(const sf::Color& color) { text.setFillColor(color); }
-	void SetOutlineColor(sf::Color& color) { rec.setOutlineColor(color); }
+	void SetOutlineColor(sf::Color color) { rec.setOutlineColor(color); }
 	void SetOutlineThickness(int thick) { rec.setOutlineThickness(thick); }
-	void SetColorChange(sf::Color& color) { recOver.setFillColor(color); textOver.setFillColor(color); }
+	void SetColorChange(sf::Color color) { recOver.setFillColor(color); textOver.setFillColor(color); }
 	bool Draw(sf::Event& event, sf::RenderWindow& window )
 	{
 		if (isRecVisible)window.draw(rec);

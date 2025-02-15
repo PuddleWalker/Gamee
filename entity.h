@@ -36,6 +36,7 @@ protected:
 	float attackFrame = 0;
 	bool isAttack = 0;
 	bool isDamaged;
+	bool isShowHP = false;
 	int dam;
 
 	int TotalHP = 100;
@@ -71,13 +72,14 @@ public:
 		else sprite.setOrigin(-MinWidth-sprite.getTextureRect().getSize().x, sprite.getOrigin().y);
 		window.draw(sprite);
 		window.draw(attSprite);
-
+		if (isShowHP) ShowHP(window);
 	}
 	void Attacked(sf::FloatRect attHit, int dam)
 	{
 		if (attHit.intersects(getRect()))
 		{
 			CurrentHP -= dam;
+			curHealthRec.setSize(sf::Vector2f(totHealthRec.getSize().x * CurrentHP / TotalHP, totHealthRec.getSize().y ));
 			isDamaged = true;
 		}
 	}
@@ -125,9 +127,14 @@ class slime : public Character
 	sf::Clock timer;
 	float rWait;
 	float pX1, pY1;
-	void ShowHP(sf::RenderWindow& window) override{}
+	void ShowHP(sf::RenderWindow& window) override
+	{
+		totHealthRec.setPosition(sf::Vector2f(x + abs(sprite.getTextureRect().width) / 2 - totHealthRec.getSize().x/2, y- totHealthRec.getSize().y));
+		curHealthRec.setPosition(sf::Vector2f(x + abs(sprite.getTextureRect().width) / 2 - totHealthRec.getSize().x/2, y- totHealthRec.getSize().y));
+		window.draw(totHealthRec); window.draw(curHealthRec);
+	}
 public:
-	slime(float X, float Y, int HP, sf::Color col = sf::Color::Blue) {
+	slime(int X, int Y, int HP, sf::Color col = sf::Color::Blue) {
 		if (col == sf::Color::Red) { File = "red_slime.png"; dam = 30; }
 		else if (col == sf::Color::Green) { File = "green_slime.png"; dam = 20; }
 		else { File = "blue_slime.png"; dam = 10; }
@@ -139,7 +146,10 @@ public:
 		image.createMaskFromColor(sf::Color(0, 0, 0));
 		texture.loadFromImage(image);
 		sprite.setTexture(texture);
-		x = X; y = Y;
+		x = (rand() % (X - 2 - MinWidth / 32) + 1) * 32;
+		std::cout << x << "\t";
+		y = (rand() % (Y - 2 - MinHigh / 32) + 1) * 32;
+		std::cout << y << "\n";
 		pX1 = rand() % 200 - 100 + x;
 		pY1 = rand() % 200 - 100 + y;
 
@@ -149,6 +159,11 @@ public:
 		attTexture.loadFromImage(attImage);
 		attSprite.setTexture(attTexture);
 		attSprite.setTextureRect(sf::IntRect(0, 0, 60, 100));
+		totHealthRec.setSize(sf::Vector2f(MinWidth, 8));
+		curHealthRec.setSize(sf::Vector2f(MinWidth, 8));
+		totHealthRec.setFillColor(sf::Color::White);
+		curHealthRec.setFillColor(sf::Color::Green);
+		isShowHP = true;
 	}
 private:
 	void interactionWithMap(Room& r1) override//ф-ция взаимодействия с картой
@@ -255,7 +270,7 @@ private:
 			{
 				if (x + abs(sprite.getTextureRect().getSize().x) / 2 > pl.getX() + abs(pl.getHit().getTextureRect().getSize().x) / 2) direct = 1;
 				else direct = 2;
-				if (timer.getElapsedTime().asSeconds() >= 1)
+				if (timer.getElapsedTime().asSeconds() >= 0.5)
 				{
 					isAttack = true;
 					attackClock.restart();
@@ -312,18 +327,10 @@ private:
 				}
 				else
 				{
-					if (direct == 2)
-					{
-						CurrentFrame += 0.007 * time;
-						if (CurrentFrame > 8) CurrentFrame -= 8;
-						sprite.setTextureRect(sf::IntRect(48 * int(CurrentFrame), 0, 49, 34));
-					}
-					else
-					{
-						CurrentFrame += 0.007 * time;
-						if (CurrentFrame > 8) CurrentFrame -= 8;
-						sprite.setTextureRect(sf::IntRect(48 * int(CurrentFrame + 1) + 1, 0, -49, 34));
-					}
+					if (direct == 2)sprite.setTextureRect(sf::IntRect(48 * int(CurrentFrame), 0, 49, 34));
+					else sprite.setTextureRect(sf::IntRect(48 * int(CurrentFrame + 1) + 1, 0, -49, 34));
+					CurrentFrame += 0.007 * time;
+					if (CurrentFrame > 8) CurrentFrame -= 8;
 				}
 			}
 		}
@@ -338,7 +345,7 @@ class NPCList
 	static int NPCCount;
 public:
 	NPCList() { NPCCount = 0; }
-	void create(float X, float Y, int HP, sf::Color col = sf::Color::Blue)
+	void create(int X, int Y, int HP, sf::Color col = sf::Color::Blue)
 	{
 		NPCs.emplace_back(X, Y, HP, col);
 		NPCCount++;
@@ -506,10 +513,12 @@ public:
 					dodgeClock.restart();
 				}
 				if (direct == 2) {
+					//dx = 1;
 					dir = 1;
 					sprite.setTextureRect(sf::IntRect(149 * int(dodgeFrame), 213, 150, 112));
 				}
 				else {
+					//dx = -1;
 					dir = 0;
 					sprite.setTextureRect(sf::IntRect(149 * (int(dodgeFrame) + 1) + 1, 213, -150, 112));
 				}
@@ -564,43 +573,41 @@ public:
 				}
 				else {
 					if ((sf::Keyboard::isKeyPressed(sf::Keyboard::Left) || (sf::Keyboard::isKeyPressed(sf::Keyboard::A)))) {
+						//dx --;
 						dir = 1; speed = 0.1;
-						CurrentFrame += 0.005 * time;
-						if (CurrentFrame > 8) CurrentFrame -= 8;
-						sprite.setTextureRect(sf::IntRect(117 * (int(CurrentFrame) + 1) + 1, 105, -118, 109));
 						direct = 1;
 					}
 
 					if ((sf::Keyboard::isKeyPressed(sf::Keyboard::Right) || (sf::Keyboard::isKeyPressed(sf::Keyboard::D)))) {
+						//dx ++;
 						dir = 0; speed = 0.1;
-						CurrentFrame += 0.005 * time;
-						if (CurrentFrame > 8) CurrentFrame -= 8;
-						sprite.setTextureRect(sf::IntRect(117 * int(CurrentFrame), 105, 118, 109));
 						direct = 2;
 					}
 
 					if ((sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || (sf::Keyboard::isKeyPressed(sf::Keyboard::W)))) {
+						//dy ++;
 						dir = 3; speed = 0.1;
-						CurrentFrame += 0.005 * time;
-						if (CurrentFrame > 8) CurrentFrame -= 8;
-						if (direct == 1)sprite.setTextureRect(sf::IntRect(117 * (int(CurrentFrame) + 1) + 1, 104, -118, 110));
-						else sprite.setTextureRect(sf::IntRect(117 * int(CurrentFrame), 104, 118, 110));
 					}
 
 					if ((sf::Keyboard::isKeyPressed(sf::Keyboard::S) || (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)))) {
+						//dy--;
 						dir = 2; speed = 0.1;
-						CurrentFrame += 0.005 * time;
-						if (CurrentFrame > 8) CurrentFrame -= 8;
-						if (direct == 1)sprite.setTextureRect(sf::IntRect(117 * (int(CurrentFrame) + 1) + 1, 104, -118, 110));
-						else sprite.setTextureRect(sf::IntRect(117 * int(CurrentFrame), 104, 118, 110));
 					}
-
+					//if(dx != 0 && dy !=0) {dx *= 0.5; dy *= 0.5}
+					//else
 					if (speed == 0)
 					{
 						CurrentFrame += 0.007 * time;
 						if (CurrentFrame > 10) CurrentFrame -= 10;
 						if (direct == 1)sprite.setTextureRect(sf::IntRect(102 * (int(CurrentFrame) + 1) + 1, 0, -103, 105));
 						else sprite.setTextureRect(sf::IntRect(102 * int(CurrentFrame), 0, 103, 105));
+					}
+					else
+					{
+						CurrentFrame += 0.005 * time;
+						if (CurrentFrame > 8) CurrentFrame -= 8;
+						if (direct == 1)sprite.setTextureRect(sf::IntRect(117 * (int(CurrentFrame) + 1) + 1, 104, -118, 110));
+						else sprite.setTextureRect(sf::IntRect(117 * int(CurrentFrame), 104, 118, 110));
 					}
 				}
 			}

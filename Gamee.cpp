@@ -2,12 +2,26 @@
 #include <iostream> 
 #include "Interface.h"
 #include "map.h"
-#include "view.h"
 #include "entity.h"
 #include "Screen.h"
 using namespace sf;
 int roundUp(double value) {
 	return (value == static_cast<int>(value)) ? static_cast<int>(value) : static_cast<int>(value) + 1;
+}
+sf::Color randCol() 
+{
+	switch (rand() % 3)
+	{
+	case 0:
+		return(sf::Color::Blue);
+		break;
+	case 1:
+		return(sf::Color::Red);
+		break;
+	case 2:
+		return(sf::Color::Green);
+		break;
+	}
 }
 int main()
 {
@@ -15,14 +29,14 @@ int main()
 	Screen screen(VideoMode::getDesktopMode().width, VideoMode::getDesktopMode().height);
 	while (!screen.getEnd()) {
 		Room r1;
+		
 		Player p(250, 250);
 		NPCList n;
-		
-		for (int i = 0; i < 3; i++)
+		int goals = 5;
+		for (int i = 0; i < 5; i++)
 		{
-			n.create((rand() % 46 + 2) * 32, (rand() % 21 + 2) * 32, (rand() % 50 + 1), sf::Color::Red);
+			n.create(r1.WIDTH_MAP, r1.HEIGHT_MAP, (rand() % 50 + 1), randCol());
 		}
-		screen.setTimer(250);
 		while (screen.window.isOpen())
 		{
 			sf::Event event;
@@ -39,10 +53,11 @@ int main()
 			///////////////////////////////////////////Управление персонажем с анимацией////////////////////////////////////////////////////////////////////////
 			p.movement(event);
 			p.update(r1);
-			if (n.getCount() < 3)
+			if (n.getCount() < 5)
 			{
-				n.create((rand() % 46 + 2) * 32, (rand() % 21 + 2) * 32, (rand() % 50 + 1));
-				screen.increseScore();
+
+				n.create(r1.WIDTH_MAP, r1.HEIGHT_MAP, (rand() % 50 + 1), randCol());
+				goals--;
 			}
 			
 			
@@ -55,6 +70,7 @@ int main()
 			float x = p.getX();
 			float y = p.getY();
 			n.moves(p); 
+			screen.ShowBackground();
 			r1.AddToDraw(std::make_pair(roundUp((y + p.getMinHigh())/(float)32)-1, [&p](sf::RenderWindow& window) { p.draw(window); }));
 			for (size_t i = 0; i < n.getCount(); i++) {
 				r1.AddToDraw(std::make_pair(
@@ -69,6 +85,11 @@ int main()
 			screen.showMetrics();
 			screen.ShowPlayerHP(p.getHP());
 			screen.window.display();
+			if (goals <= 0)
+			{
+				screen.end(true);
+				break;
+			}
 		}
 
 	}
