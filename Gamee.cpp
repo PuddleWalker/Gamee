@@ -6,7 +6,9 @@
 #include "entity.h"
 #include "Screen.h"
 using namespace sf;
-
+int roundUp(double value) {
+	return (value == static_cast<int>(value)) ? static_cast<int>(value) : static_cast<int>(value) + 1;
+}
 int main()
 {
 	srand(time(NULL));
@@ -52,10 +54,16 @@ int main()
 			sf::Sprite rec = p.getHit();
 			float x = p.getX();
 			float y = p.getY();
-			n.moves(p);
+			n.moves(p); 
+			r1.AddToDraw(std::make_pair(roundUp((y + p.getMinHigh())/(float)32)-1, [&p](sf::RenderWindow& window) { p.draw(window); }));
+			for (size_t i = 0; i < n.getCount(); i++) {
+				r1.AddToDraw(std::make_pair(
+					roundUp((n[i].getY() + n[i].getMinHigh()) / (float)32) - 1,
+					[&n, i](sf::RenderWindow& window) { n[i].draw(window); }
+				));
+			}
 			r1.draw(screen.window);
 			n.draw(screen.window);
-			p.draw(screen.window);
 			screen.start();
 			screen.setView(rec.getPosition().x, rec.getPosition().y);
 			screen.showMetrics();

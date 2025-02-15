@@ -51,6 +51,8 @@ protected:
 	int direct = 2;
 
 public:
+	int getMinHigh() { return MinHigh; }
+	int getMinWidth() { return MinWidth; }
 	const sf::FloatRect getRect()
 	{
 		return sf::FloatRect(x, y, MinWidth, MinHigh);
@@ -69,6 +71,7 @@ public:
 		else sprite.setOrigin(-MinWidth-sprite.getTextureRect().getSize().x, sprite.getOrigin().y);
 		window.draw(sprite);
 		window.draw(attSprite);
+
 	}
 	void Attacked(sf::FloatRect attHit, int dam)
 	{
@@ -340,7 +343,7 @@ public:
 		NPCs.emplace_back(X, Y, HP, col);
 		NPCCount++;
 	}
-	slime& operator[](int num)
+	Character& operator[](int num)
 	{
 		it = NPCs.begin();
 		advance(it, num);
@@ -605,7 +608,7 @@ public:
 	}
 	void interactionWithMap(Room& r1) override//ф-ция взаимодействия с картой
 	{
-		for (int i = y / 32; i < (y + MinHigh) / 32; i++)//проходимся по тайликам, контактирующим с игроком,, то есть по всем квадратикам размера 32*32, которые мы окрашивали в 9 уроке. про условия читайте ниже.
+		for (int i = (y + MinHigh /3 ) / 32; i < (y + MinHigh) / 32; i++)//проходимся по тайликам, контактирующим с игроком,, то есть по всем квадратикам размера 32*32, которые мы окрашивали в 9 уроке. про условия читайте ниже.
 			for (int j = x / 32; j < (x + MinWidth) / 32; j++)//икс делим на 32, тем самым получаем левый квадратик, с которым персонаж соприкасается. (он ведь больше размера 32*32, поэтому может одновременно стоять на нескольких квадратах). А j<(x + w) / 32 - условие ограничения координат по иксу. то есть координата самого правого квадрата, который соприкасается с персонажем. таким образом идем в цикле слева направо по иксу, проходя по от левого квадрата (соприкасающегося с героем), до правого квадрата (соприкасающегося с героем)
 			{
 				if (r1.GetTile(i, j) == '0')//если наш квадратик соответствует символу 0 (стена), то проверяем "направление скорости" персонажа:
@@ -616,7 +619,7 @@ public:
 					}
 					if (dy < 0)
 					{
-						y = i * 32 + 32;//аналогично с ходьбой вверх. dy<0, значит мы идем вверх (вспоминаем координаты паинта)
+						y = i * 32 + 32- MinHigh / 3;//аналогично с ходьбой вверх. dy<0, значит мы идем вверх (вспоминаем координаты паинта)
 					}
 					if (dx > 0)
 					{
